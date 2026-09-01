@@ -1,0 +1,17 @@
+{
+  "name": "MK Monthly",
+  "short_name": "MK Monthly",
+  "start_url": "/Money-App/mk-monthly/",
+  "scope": "/Money-App/mk-monthly/",
+  "display": "standalone",
+  "background_color": "#f5f6f8",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
