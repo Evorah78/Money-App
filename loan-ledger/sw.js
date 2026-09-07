@@ -1,4 +1,4 @@
-const CACHE='priority-loan-v2';
+const CACHE='priority-loan-v3';
 const ASSETS=['./','./index.html','./manifest.webmanifest','./icon.png'];
 async function brandedHtml(request){let response;try{response=await fetch(request,{cache:'no-store'})}catch(e){response=await caches.match(request)||await caches.match('./index.html')}if(!response)return response;let text=await response.text();text=text.replaceAll('Loan Ledger','Priority Loan');return new Response(text,{status:response.status,statusText:response.statusText,headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}})}
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
