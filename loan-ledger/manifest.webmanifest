@@ -1,6 +1,6 @@
 {
-  "name":"Loan Ledger",
-  "short_name":"Loan Ledger",
+  "name":"Priority Loan",
+  "short_name":"Priority Loan",
   "start_url":"/Money-App/loan-ledger/",
   "scope":"/Money-App/loan-ledger/",
   "display":"standalone",
