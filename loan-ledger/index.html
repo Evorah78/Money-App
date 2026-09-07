@@ -6,11 +6,11 @@
 <meta name="theme-color" content="#111318" id="themeColor">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Loan Ledger">
-<link rel="manifest" href="manifest.webmanifest?v=1">
-<link rel="apple-touch-icon" href="icon.png?v=1">
-<link rel="icon" href="icon.png?v=1">
-<title>Loan Ledger</title>
+<meta name="apple-mobile-web-app-title" content="Priority Loan">
+<link rel="manifest" href="manifest.webmanifest?v=3">
+<link rel="apple-touch-icon" href="icon.png?v=3">
+<link rel="icon" href="icon.png?v=3">
+<title>Priority Loan</title>
 <style>
 :root{--bg:#f4f3f0;--card:#fff;--card2:#f9f8f5;--text:#17181b;--muted:#76777c;--line:#e6e3dc;--accent:#b7793d;--accent2:#e0b27b;--danger:#a54848;--shadow:0 12px 35px #1c1b1812;color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,Arial,sans-serif}
 html[data-theme="dark"]{--bg:#0f1115;--card:#171a20;--card2:#1d2027;--text:#f2f0eb;--muted:#9a9da5;--line:#2a2e36;--accent:#d59555;--accent2:#efbd7f;--danger:#e07171;--shadow:0 16px 45px #0007;color-scheme:dark}
@@ -21,7 +21,7 @@ html[data-theme="dark"]{--bg:#0f1115;--card:#171a20;--card2:#1d2027;--text:#f2f0
 <body>
 <div id="lock" class="overlay hidden"></div>
 <div class="shell">
-<header class="top"><div class="brand"><img src="icon.png?v=1" alt=""><div><h1>Loan Ledger</h1><p>Local repayment tracker</p></div></div><button class="iconbtn" id="settingsBtn" aria-label="Settings">⚙︎</button></header>
+<header class="top"><div class="brand"><img src="icon.png?v=3" alt=""><div><h1>Priority Loan</h1><p>Local repayment tracker</p></div></div><button class="iconbtn" id="settingsBtn" aria-label="Settings">⚙︎</button></header>
 <section class="hero"><div class="label">Outstanding balance</div><div class="balance" id="balance">£0.00</div><div class="stats"><div class="stat"><span class="label">Total borrowed</span><b id="borrowed">£0.00</b></div><div class="stat"><span class="label">Total repaid</span><b id="repaid">£0.00</b></div></div><div class="progress"><span id="progress" style="width:0%"></span></div><div class="row-sub" id="progressText" style="margin-top:7px">0% repaid</div></section>
 <div class="tabs"><button class="tab active" data-tab="borrowings">Borrowings</button><button class="tab" data-tab="repayments">Repayments</button><button class="tab" data-tab="summary">Summary</button></div>
 <section id="borrowingsTab"></section><section id="repaymentsTab" class="hidden"></section><section id="summaryTab" class="hidden"></section>
@@ -32,7 +32,7 @@ const K={data:'loanledger_data_v1',pin:'loanledger_pin_v1',theme:'loanledger_the
 const defaults={borrowings:[
 {id:'b1',amount:14600,purpose:'Car TROC',date:''},{id:'b2',amount:560,purpose:'Lyndhurst deposit',date:''},{id:'b3',amount:565,purpose:'Cash at home',date:''},{id:'b4',amount:4400,purpose:'Volvo',date:''},{id:'b5',amount:2850,purpose:'Lyndhurst deposit',date:''},{id:'b6',amount:26000,purpose:'Loan',date:''}],
 repayments:[{id:'r1',amount:500,date:'2026-08-28',note:'Payment'}]};
-let data=loadData();let activeTab='borrowings';const $=s=>document.querySelector(s);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let data=loadData();let activeTab='borrowings';const $=s=>document.querySelector(s);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
 function loadData(){try{return JSON.parse(localStorage.getItem(K.data))||structuredClone(defaults)}catch{return structuredClone(defaults)}}
 function save(){localStorage.setItem(K.data,JSON.stringify(data));render()}
 const money=n=>Number(n||0).toLocaleString('en-GB',{style:'currency',currency:'GBP'});const fmtDate=d=>d?new Date(d+'T12:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'}):'Unknown';
@@ -51,17 +51,17 @@ function repaymentSheet(id){const x=data.repayments.find(v=>v.id===id)||{amount:
 function saveRepayment(id){const amount=parseFloat($('#ra').value),date=$('#rd').value,note=$('#rn').value.trim();if(!(amount>0)||!date)return alert('Enter the payment amount and date.');const t=totals(),old=id?Number(data.repayments.find(x=>x.id===id).amount):0;if(amount>t.balance+old)return alert('That payment is more than the remaining balance.');if(id){Object.assign(data.repayments.find(x=>x.id===id),{amount,date,note})}else data.repayments.push({id:'r'+Date.now(),amount,date,note});save();closeSheet()}
 function editRepayment(id){repaymentSheet(id)}function removeRepayment(id){if(confirm('Delete this repayment?')){data.repayments=data.repayments.filter(x=>x.id!==id);save()}}
 async function hashPin(pin){const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pin));return[...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('')}
-function lockScreen(setup=false){const lock=$('#lock');lock.classList.remove('hidden');lock.innerHTML=`<div class="lockcard"><img src="icon.png?v=1"><h2>${setup?'Create your PIN':'Loan Ledger'}</h2><div class="row-sub">${setup?'Set a 4-digit PIN for this device.':'Enter your 4-digit PIN.'}</div><input id="pin" class="pin" inputmode="numeric" pattern="[0-9]*" maxlength="4" type="password" autocomplete="off" placeholder="••••"><div id="pinErr" class="error"></div></div>`;setTimeout(()=>$('#pin').focus(),50);$('#pin').addEventListener('input',async e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,4);if(e.target.value.length===4){const h=await hashPin(e.target.value);if(setup){localStorage.setItem(K.pin,h);unlock()}else if(h===localStorage.getItem(K.pin)){unlock()}else{$('#pinErr').textContent='Incorrect PIN';e.target.value='';navigator.vibrate?.(80)}}})}
+function lockScreen(setup=false){const lock=$('#lock');lock.classList.remove('hidden');lock.innerHTML=`<div class="lockcard"><img src="icon.png?v=3"><h2>${setup?'Create your PIN':'Priority Loan'}</h2><div class="row-sub">${setup?'Set a 4-digit PIN for this device.':'Enter your 4-digit PIN.'}</div><input id="pin" class="pin" inputmode="numeric" pattern="[0-9]*" maxlength="4" type="password" autocomplete="off" placeholder="••••"><div id="pinErr" class="error"></div></div>`;setTimeout(()=>$('#pin').focus(),50);$('#pin').addEventListener('input',async e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,4);if(e.target.value.length===4){const h=await hashPin(e.target.value);if(setup){localStorage.setItem(K.pin,h);unlock()}else if(h===localStorage.getItem(K.pin)){unlock()}else{$('#pinErr').textContent='Incorrect PIN';e.target.value='';navigator.vibrate?.(80)}}})}
 function unlock(){$('#lock').classList.add('hidden');$('#lock').innerHTML=''}
 function applyTheme(v){document.documentElement.dataset.theme=v;localStorage.setItem(K.theme,v);$('#themeColor').setAttribute('content',v==='dark'?'#0f1115':'#f4f3f0')}
 function settingsSheet(){const theme=localStorage.getItem(K.theme)||'dark';openSheet(`<div class="sheethead"><h3>Settings</h3><button class="close" onclick="closeSheet()">×</button></div><div class="settings-grid"><div class="setting"><div><b>Theme</b><div class="row-sub">Light or dark</div></div><div class="toggle"><button class="${theme==='light'?'active':''}" onclick="applyTheme('light');settingsSheet()">Light</button><button class="${theme==='dark'?'active':''}" onclick="applyTheme('dark');settingsSheet()">Dark</button></div></div><button class="secondary" onclick="changePin()">Change 4-digit PIN</button><button class="secondary" onclick="lockNow()">Lock now</button></div>`)}
 function changePin(){if(!confirm('Set a new 4-digit PIN?'))return;localStorage.removeItem(K.pin);closeSheet();lockScreen(true)}function lockNow(){closeSheet();lockScreen(false)}
 $('#settingsBtn').onclick=settingsSheet;
-function exportBackup(){const blob=new Blob([JSON.stringify({version:1,exportedAt:new Date().toISOString(),data},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='loan-ledger-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)}
-function importBackup(){const inp=document.createElement('input');inp.type='file';inp.accept='.json,application/json';inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);if(!j.data?.borrowings||!j.data?.repayments)throw 0;if(confirm('Replace the current Loan Ledger data with this backup?')){data=j.data;save()}}catch{alert('That backup file could not be read.')}};r.readAsText(f)};inp.click()}
+function exportBackup(){const blob=new Blob([JSON.stringify({version:1,exportedAt:new Date().toISOString(),data},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='priority-loan-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)}
+function importBackup(){const inp=document.createElement('input');inp.type='file';inp.accept='.json,application/json';inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);if(!j.data?.borrowings||!j.data?.repayments)throw 0;if(confirm('Replace the current Priority Loan data with this backup?')){data=j.data;save()}}catch{alert('That backup file could not be read.')}};r.readAsText(f)};inp.click()}
 applyTheme(localStorage.getItem(K.theme)||'dark');if(!localStorage.getItem(K.data))localStorage.setItem(K.data,JSON.stringify(defaults));render();if(!localStorage.getItem(K.pin))lockScreen(true);else lockScreen(false);
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&localStorage.getItem(K.pin))setTimeout(()=>{if(document.hidden)lockScreen(false)},300)});
-if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=1').catch(()=>{});
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=3').catch(()=>{});
 </script>
 </body>
 </html>
